@@ -4,5 +4,5 @@ A docassemble extension that gives suggestions on how to improve other docassemb
 
 ## Author
 
-Bryce Willey, bryce.steven.willey@gmail.com
+Bryce Willey, bwilley@suffolk.edu
 
