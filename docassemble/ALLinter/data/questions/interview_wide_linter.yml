@@ -6,11 +6,12 @@ code: |
 ---
 imports:
   - ruamel.yaml
-  - mako.template
   - mako.runtime
-  - mako.exceptions
   - textstat.textstat
   - docassemble.webapp.screenreader
+---
+modules:
+  - .linter
 ---
 question: |
   Upload a yaml file
@@ -23,119 +24,20 @@ code: |
 ---
 code: |
   # identify all questions that set a variable in the interview
-  # they will be added as a dictionary of label: field, with other modifiers
-  words_temp = []
-  mega_list
-  for doc in yaml_parsed:
-    if doc:
-      for text_section in ['question', 'subquestion', 'under', 'pre', 'post', 'right']:
-        if text_section in doc:
-          words_temp.append(doc.get(text_section))
-      if 'help' in doc:
-        help_section = doc.get('help')
-        # TODO(brycew) is a help dict valid w/o both content and label?
-        if isinstance(help_section, dict):
-          words_temp.append(help_section.get('content', ''))
-          words_temp.append(help_section.get('label', ''))
-        elif isinstance(help_section, str):
-          words_temp.append(help_section)
-      if 'terms' in doc:
-        terms_section = doc.get('terms')
-        if isinstance(terms_section, dict):
-          for term, definition in terms_section.items():
-            words_temp.append(definition)
-        elif isinstance(terms_section, list):
-          for term_item in terms_section:
-            if 'definition' in term_item:
-              words_temp.append(term_item.get('definition'))
-      # TODO(brycew): handle all the different types of questions
-      for field_type in ['yesno', 'noyes']:
-        if field_type in doc:
-          words_temp.append('yes')
-          words_temp.append('no')
-      for field_type in ['yesnomaybe', 'noyesmaybe']:
-        if field_type in doc:
-          words_temp.append('yes')
-          words_temp.append('no')
-          word_temp.append('maybe')
-      # TODO(brycew): buttons is parsed separately in DA core: why?
-      for field_type in ['choices', 'dropdown', 'combobox', 'buttons']:
-        if field_type in doc:
-          # TODO(brycew): doesn't get `code` layout of fields
-          if isinstance(doc.get(field_type), list):
-            # NOTE: check out parse.py:parse_fields() (5973)
-            for field_item in doc.get(field_type):
-              if isinstance(field_item, str):
-                words_temp.append(field_item)
-                continue
-              if 'help' in field_item:
-                words_temp.append(field_item.get('help'))
-              for field_attr in field_item:
-                if field_attr not in ['help', 'default']:
-                  words_temp.append(field_item.get(field_attr))
-                if field_attr == 'code':
-                  continue
-                elif field_attr == 'no label':
-                  continue
-                else:
-                  words_temp.append(field_attr)        
-      if 'fields' in doc:
-        fields_section = doc.get('fields')
-        if isinstance(fields_section, dict):
-          fields_section = [fields_section]
-        for field in fields_section:
-          if 'code' in field:
-            continue
-          for field_attr in field:
-            if field_attr == 'validation_message':
-              continue
-            elif field_attr == 'help' or field_attr == 'hint':
-              continue
-            elif field_attr == 'label':
-              words_temp.append(field_attr.get(field_attr))
-            elif field_attr == 'note' or field_attr == 'html':
-              words_temp.append(field.get(field_attr))
-            elif field_attr == 'choices':
-              for choice in field.get('choices'):
-                if len(choice) == 1:
-                  words_temp.append(choice)
-                elif 'label' in choice:
-                  words_temp.append(choice.get('label'))
-            elif field_attr not in mega_list:
-              words_temp.append(field_attr)
-          
-  interview_texts = words_temp
-  del words_temp
----
-code: |
-  mega_list = ['default', 'input type', 'using', 'keep for training',
-      'validation messages', 'validate', 'rows', 'maximum image size',
-      'image upload type', 'accept', 'allow privileges', 'allow users',
-      'persistent', 'private', 'object labeler', 'help generator',
-      'image generator', 'required', 'js show if', 'js hide if',
-      'js disable if', 'js enable if', 'enable if', 'disable if',
-      'show if', 'hide if', 'default', 'hint', 'disable others',
-      'uncheck others', 'datatype', 'code', 'address autocomplete',
-      'action', 'trigger at', 'exclude', 'choices', 'field metadata',
-      'min', 'max', 'minlength', 'maxlength', 'step', 'scale', 'inline',
-      'inline width', 'currency symbol', 'shuffle', 'none of the above',
-      'field']
+  interview_texts = get_all_text(yaml_parsed)
+  headings = get_all_headings(yaml_parsed)
 ---
 code: |
   mako.runtime.UNDEFINED = DAEmpty()
 
+  interview_texts_no_mako = [remove_mako(text) for text in interview_texts]
+  headings = {key: remove_mako(text) for key, text in headings.items()}
+---
+code: |
   paragraph_temp = ''
-  for text in interview_texts:
-    try: 
-      mytemplate = mako.template.Template(text)
-      mkdown_text = mytemplate.render()
-      html_text = docassemble.base.filter.markdown_to_html(mkdown_text)
-      final_text = docassemble.webapp.screenreader.to_text(html_text)
-      paragraph_temp += final_text
-    except:
-      pass 
+  for text in interview_texts_no_mako:
+    paragraph_temp += text
   paragraph = paragraph_temp
-  del mytemplate
   del paragraph_temp
 ---
 code: |
@@ -149,18 +51,46 @@ code: |
                ('Dale-Chall Readability Score', textstat.dale_chall_readability_score),
                ('Readability Consensus', textstat.text_standard)]}
 ---
+code: |
+  headings_warnings = headings_violations(headings)
+---
+code: |
+  warnings = text_violations(interview_texts_no_mako)
+---
 event: results
 question: |
-  
+  Interview Suggestions
 subquestion: |
+  ### Readability
+  
   % for key, val in interview_scores.items():
   * ${ key } : ${ val }
   % endfor
-help: |
-  % for text in interview_texts:
   
-  ${ text }
+  % if headings_warnings or warnings:
+  ### Warnings:
   
-  ---
-  <br>
+  % for warning in headings_warnings:
+  * ${ warning }
   % endfor
+  
+  % for warning in warnings:
+  % if isinstance(warning, tuple):
+  * ${ warning[0] } [Read more](${warning[1]})
+  % else:
+  * ${ warning }
+  % endif
+  % endfor
+  
+  % endif
+help:
+  label: |
+    Text used
+  content: |
+    % for text in interview_texts:
+  
+    ${ text }
+  
+    ---
+    <br>
+    % endfor

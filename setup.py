@@ -45,7 +45,7 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
 setup(name='docassemble.ALLinter',
       version='0.0.1',
       description=('A docassemble extension that gives suggestions on how to improve other docassemble interviews'),
-      long_description='# docassemble.ALLinter\n\nA docassemble extension that gives suggestions on how to improve other docassemble interviews\n\n## Author\n\nBryce Willey, bryce.steven.willey@gmail.com\n\n',
+      long_description='# docassemble.ALLinter\r\n\r\nA docassemble extension that gives suggestions on how to improve other docassemble interviews\r\n\r\n## Author\r\n\r\nBryce Willey, bryce.steven.willey@gmail.com\r\n\r\n',
       long_description_content_type='text/markdown',
       author='Bryce Willey',
       author_email='bwilley@suffolk.edu',
