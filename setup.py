@@ -53,7 +53,7 @@ setup(name='docassemble.ALLinter',
       url='https://docassemble.org',
       packages=find_packages(),
       namespace_packages=['docassemble'],
-      install_requires=['Mako>=1.1.4', 'ruamel.yaml>=0.17.4', 'textstat>=0.7.0'],
+      install_requires=['Mako>=1.1.4', 'ruamel.yaml>=0.17.4', 'plumbum>=1.7.2', 'textstat>=0.7.0'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/ALLinter/', package='docassemble.ALLinter'),
      )
