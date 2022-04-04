@@ -6,6 +6,7 @@ import time
 import math
 import os
 import ruamel.yaml
+from .linter import load_interview
 
 def download_from_github(repo_url:str):
     print(f'cloning {repo_url}')
@@ -62,7 +63,7 @@ def all_questions(all_yamls):
     all_qs = []
     for yaml_filename in all_yamls:
         with open(yaml_filename, 'r') as yaml_file:
-            yaml_parsed = list(ruamel.yaml.safe_load_all(yaml_file.read()))
+            yaml_parsed = load_interview(yaml_file.read())
         all_qs.extend(yaml_parsed)
     return all_qs
     

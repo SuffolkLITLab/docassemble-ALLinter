@@ -1,4 +1,6 @@
 import textstat
+import re
+import ruamel.yaml
 import mako.template
 import mako.runtime
 import mako.exceptions
@@ -19,6 +21,11 @@ mega_list = ('default', 'input type', 'using', 'keep for training',
       'inline width', 'currency symbol', 'shuffle', 'none of the above',
       'field')
 
+def load_interview(content):
+  fix_tabs = re.compile(r'\t')
+  content = fix_tabs.sub('  ', content)
+  return list(ruamel.yaml.safe_load_all(content))
+
 def remove_mako(text:str):
   try: 
     mytemplate = mako.template.Template(text)
@@ -34,7 +41,7 @@ def get_all_headings(yaml_parsed:List[dict]):
   for doc in yaml_parsed:
     if not doc:
       continue
-    if 'question' in doc:
+    if 'question' in doc and doc['question']:
       if 'id' in doc:
         headings[doc.get('id')] = doc.get('question')
       else:
@@ -42,6 +49,8 @@ def get_all_headings(yaml_parsed:List[dict]):
   return headings
 
 def get_heading_width(heading_text:str) -> int:
+  if not heading_text:
+    return 0
   # TODO(bryce): this is _very_ ad hoc: on a DA header, I added all ASCII letters and numbers, and
   # hand counted pixels. Not rigorus, or probably stable, compared to different CSS anything
   # Font was Roboto, at 1.75 rem size.
@@ -158,7 +167,7 @@ def get_all_text(yaml_parsed:List[dict]):
         if field_type in doc:
           words_temp.append('yes')
           words_temp.append('no')
-          word_temp.append('maybe')
+          words_temp.append('maybe')
       # TODO(brycew): buttons is parsed separately in DA core: why?
       for field_type in ['choices', 'dropdown', 'combobox', 'buttons']:
         if field_type in doc:

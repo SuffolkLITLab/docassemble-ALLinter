@@ -20,7 +20,7 @@ fields:
     datatype: file
 ---
 code: |
-  yaml_parsed = list(ruamel.yaml.safe_load_all(yaml_file.slurp()))
+  yaml_parsed = load_interview(yaml_file.slurp())
 ---
 code: |
   # identify all questions that set a variable in the interview
