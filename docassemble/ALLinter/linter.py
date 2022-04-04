@@ -6,7 +6,33 @@ import mako.runtime
 import mako.exceptions
 import docassemble.webapp.screenreader
 import docassemble.base.filter
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Mapping, Set, Union
+from spellchecker import SpellChecker
+
+__all__ = [
+    "get_misspelled_words",
+    "get_corrections",
+    "load_interview",
+    "remove_mako",
+    "get_all_headings",
+    "get_heading_width",
+    "headings_violations",
+    "text_violations",
+    "get_all_text",
+]
+
+def get_misspelled_words(text:str, language:str="en")->Set[str]:
+    spell = SpellChecker(language=language)
+    return spell.unknown(re.findall(r'\w+', text))
+    
+def get_corrections(misspelled:Union[Set[str], List[str]], language:str="en")->Mapping[str, Set[str]]:
+    spell = SpellChecker(language=language)
+    return [
+        {
+            misspelled_word: spell.corrections(misspelled_word)
+        }
+       for misspelled_word in misspelled
+    ]
 
 mega_list = ('default', 'input type', 'using', 'keep for training',
       'validation messages', 'validate', 'rows', 'maximum image size',
