@@ -43,8 +43,9 @@ def github_search_da_repos(just_suffolk=True):
                 continue
             json_resp = response.json()
             all_repos.update([repo['svn_url'] for repo in json_resp.get('items', []) if not repo['archived']])
-    #all_repos.remove('https://github.com/jhpyle/docassemble')
-    # TOOD: work when not there
+    all_repos.discard('https://github.com/jhpyle/docassemble')
+    all_repos.discard('https://github.com:jhpyle/docassemble.git')
+    all_repos.discard('git@github.com:jhpyle/docassemble')
     return sorted(list(all_repos))
 
 def find_all_yamls(start_dir='.'):
@@ -67,7 +68,7 @@ def all_questions(all_yamls):
     
 
 def main():
-    repos = github_search_da_repos()
+    repos = github_search_da_repos(just_suffolk=False)
     print(repos)
     for repo in repos:
         time.sleep(3)
