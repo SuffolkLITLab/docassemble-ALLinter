@@ -86,7 +86,7 @@ def headings_violations(headings):
   # The widest DA headers get (in px), on a standard mobile device, and on a narrow mobile device
   # (firefox, Pixel 2, and iPhone 5SE)
   violations = []
-  stages = [1080, 762, 580]
+  stages = [540 * 2, 381 * 2, 290 * 2]
   for key, heading in headings.items():
     heading_width = get_heading_width(heading)
     longer_than_count = sum([heading_width > stage for stage in stages])
