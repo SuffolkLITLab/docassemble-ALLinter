@@ -57,6 +57,9 @@ code: |
 code: |
   warnings = text_violations(interview_texts_no_mako)
 ---
+code: |
+  misspelled = get_misspelled_words(paragraph)
+---
 event: results
 question: |
   Interview Suggestions
@@ -66,6 +69,16 @@ subquestion: |
   % for key, val in interview_scores.items():
   * ${ key } : ${ val }
   % endfor
+  
+  % if misspelled:
+  ### Misspelled words
+  
+  It looks like these words are misspelled:
+  
+  % for misspelled_word in misspelled:
+  * ${ misspelled_word }
+  % endfor  
+  % endif
   
   % if headings_warnings or warnings:
   ### Warnings:
@@ -83,6 +96,8 @@ subquestion: |
   % endfor
   
   % endif
+  
+  
 help:
   label: |
     Text used
