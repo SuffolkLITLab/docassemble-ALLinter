@@ -17,3 +17,4 @@ jobs:
         with:
           SERVER_URL: ${{ secrets.SERVER_URL }}
           DOCASSEMBLE_DEVELOPER_API_KEY: ${{ secrets.DOCASSEMBLE_DEVELOPER_API_KEY }}
+          GITHUB_URL: https://github.com/SuffolkLITLab/docassemble-ALLinter
