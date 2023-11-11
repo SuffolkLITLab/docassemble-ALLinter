@@ -1,0 +1,19 @@
+name: Deploy to Docassemble Playground
+
+on:
+  push:
+    branches:
+      - main  # Trigger the workflow on push to main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install on Docassemble Server
+        uses: SuffolkLITLab/ALActions/da_package@da-install
+        with:
+          SERVER_URL: ${{ secrets.SERVER_URL }}
+          DOCASSEMBLE_DEVELOPER_API_KEY: ${{ secrets.DOCASSEMBLE_DEVELOPER_API_KEY }}
