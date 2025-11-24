@@ -1,6 +1,6 @@
 import os
 import sys
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 from fnmatch import fnmatchcase
 from distutils.util import convert_path
 
@@ -51,8 +51,7 @@ setup(name='docassemble.ALLinter',
       author_email='bwilley@suffolk.edu',
       license='The MIT License (MIT)',
       url='https://docassemble.org',
-      packages=find_packages(),
-      namespace_packages=['docassemble'],
+      packages=find_namespace_packages(),
       install_requires=['Mako>=1.1.4', 'pyspellchecker>=0.6.3', 'ruamel.yaml>=0.17.4', 'plumbum>=1.7.2',  'textstat>=0.7.0'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/ALLinter/', package='docassemble.ALLinter'),
